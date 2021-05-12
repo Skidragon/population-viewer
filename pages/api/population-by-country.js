@@ -35,8 +35,8 @@ const getPopulationByCountry = async () => {
 export default async (req, res) => {
   if (req.method === "GET") {
     try {
-      const populations = await getPopulationByCountry();
-      return res.status(200).json(populations);
+      // const populations = await getPopulationByCountry();
+      return res.status(200).json([]);
     } catch (err) {
       console.log(err);
     }
