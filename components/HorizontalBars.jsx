@@ -2,7 +2,7 @@ import React from "react";
 import { scaleBand, scaleLinear, max } from "d3";
 import { useWindowDimensions } from "../hooks/useWindowDimensions";
 
-const margin = { top: 20, right: 20, bottom: 20, left: 20 };
+const margin = { top: 20, right: 20, bottom: 20, left: 200 };
 export const HorizontalBars = ({
   data = [],
   getLabelValue = (record) => {},
@@ -13,7 +13,7 @@ export const HorizontalBars = ({
   style = {},
 }) => {
   const { width: windowWidth } = useWindowDimensions();
-  const svgWidth = windowWidth && !width ? windowWidth : width || 500;
+  const svgWidth = windowWidth && !width ? windowWidth - 100 : width || 1000;
   const innerHeight = height - margin.top - margin.bottom;
   const innerWidth = svgWidth - margin.left - margin.right;
   const yScale = scaleBand()
@@ -30,16 +30,31 @@ export const HorizontalBars = ({
       <g transform={`translate(${margin.left},${margin.top})`}>
         {xScale.ticks().map((tickValue) => {
           return (
-            <g transform={`translate(${xScale(tickValue)}, 0)`}>
-              <line
-                x1={xScale(tickValue)}
-                y1={0}
-                x2={xScale(tickValue)}
-                y2={innerHeight}
-                stroke="black"
-              />
-              <text y={innerHeight}>{tickValue}</text>
+            <g key={tickValue} transform={`translate(${xScale(tickValue)}, 0)`}>
+              <line y2={innerHeight} stroke="red" />
+              <text
+                dy=".71em"
+                y={innerHeight + 3}
+                style={{ textAnchor: "middle" }}
+              >
+                {tickValue}
+              </text>
             </g>
+          );
+        })}
+        {yScale.domain().map((tickValue) => {
+          return (
+            <text
+              key={tickValue}
+              x={-3}
+              dy=".7"
+              y={yScale(tickValue) + yScale.bandwidth() / 2}
+              style={{
+                textAnchor: "end",
+              }}
+            >
+              {tickValue}
+            </text>
           );
         })}
         {data.map((d) => (

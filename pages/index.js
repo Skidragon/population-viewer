@@ -4,11 +4,10 @@ import { HorizontalBars } from "../components/HorizontalBars";
 import useSWR from "swr";
 const fetcher = (url) => fetch(url).then((res) => res.json());
 export default function Home() {
-  const { data = [], error } = useSWR("/api/population-by-country", fetcher);
+  const { data = [] } = useSWR("/api/population-by-country", fetcher);
 
   return (
     <div className={styles.container}>
-      {JSON.stringify(data, undefined, 4)}
       <Head>
         <title>Population Scraper</title>
         <meta name="description" content="population" />
@@ -20,7 +19,7 @@ export default function Home() {
       <main className={styles.main}>
         <HorizontalBars
           style={{
-            background: "red",
+            margin: "20px",
           }}
           height={500}
           getLabelValue={(record) => `${record.country} ${record.population}`}
@@ -28,7 +27,7 @@ export default function Home() {
           yAxisKey={"country"}
           data={
             data
-              ? data.map((d) => {
+              ? data.slice(0, 10).map((d) => {
                   return {
                     ...d,
                     population: Number(d.population.replace(/,/g, "")),
