@@ -1,8 +1,10 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 const axios = require("axios");
 const cheerio = require("cheerio");
-const RateLimit = require("koa2-ratelimit").RateLimit;
 const NodeCache = require("node-cache");
+const rateLimit = require("express-rate-limit");
+const slowDown = require("express-slow-down");
+
 const pageURLToScrape =
   "https://www.worldometers.info/world-population/population-by-country/";
 
@@ -35,9 +37,18 @@ const getPopulationByCountry = async () => {
 //Every hour, the cache resets
 const myCache = new NodeCache({ stdTTL: 3600, checkperiod: 3600 });
 
-const limiter = RateLimit.middleware({
-  interval: { hour: 1 }, // 15 minutes = 15*60*1000
-  max: 120, // limit each IP to 100 requests per interval
+const limiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minutes
+  max: 15, // limit each IP to 60 requests per windowMs
+});
+const speedLimiter = slowDown({
+  windowMs: 1 * 60 * 1000, // 1 minutes
+  delayAfter: 15, // allow 15 requests per 1 minutes, then...
+  delayMs: 500, // begin adding 500ms of delay per request above 100:
+  // request # 101 is delayed by  500ms
+  // request # 102 is delayed by 1000ms
+  // request # 103 is delayed by 1500ms
+  // etc.
 });
 function runMiddleware(req, res, fn) {
   return new Promise((resolve, reject) => {
@@ -53,6 +64,8 @@ function runMiddleware(req, res, fn) {
 export default async (req, res) => {
   if (req.method === "GET") {
     try {
+      await runMiddleware(req, res, limiter);
+      await runMiddleware(req, res, speedLimiter);
       const cacheKey = "population-by-country";
       if (myCache.has(cacheKey)) {
         console.log(myCache.has(cacheKey));
