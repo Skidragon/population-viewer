@@ -9,19 +9,23 @@ export default function Home() {
   const { data = [] } = useSWR("/api/population-by-country", fetcher);
   const [countriesToShow, setCountriesToShow] = useState(10);
   const [isAscending, setIsAscending] = useState(true);
-  const countriesData = data
+  const formatPopulation = (value) => {
+    const toNumber = value.replace(/,/g, "");
+    return format(".2s")(toNumber).replace("G", "B");
+  };
 
+  const countriesData = data
     .slice(0, countriesToShow)
     .map((d) => {
       return {
         ...d,
+        country: `${d.country} - ${formatPopulation(d.population)}`,
         population: Number(d.population.replace(/,/g, "")),
       };
     })
     .sort((a, b) =>
       isAscending ? a.population - b.population : b.population - a.population
     );
-
   return (
     <div>
       <Head>
@@ -37,28 +41,32 @@ export default function Home() {
         >
           Population Scraper Project
         </h1>
+        <ul>
+          <li>
+            <span style={{ marginRight: "4px" }}>Data from:</span>
+            <a href="https://www.worldometers.info/world-population/population-by-country/">
+              https://www.worldometers.info/world-population/population-by-country/
+            </a>
+          </li>
+          <li>
+            <span style={{ marginRight: "4px" }}>Code Repo Link:</span>
+            <a href="https://github.com/Skidragon/population-viewer">
+              Git Repo
+            </a>
+          </li>
+        </ul>
       </header>
       <main className={styles.main}>
-        <p>
-          {`Total Estimate From Chart: 
-          ${
-            countriesData
-              ? format(".2s")(
-                  countriesData?.reduce((acc, cur) => acc + cur.population, 0)
-                ).replace("G", "B")
-              : 0
-          }`}
-        </p>
         <div
           style={{
             display: "flex",
             flexFlow: "column",
-            position: "sticky",
             top: 0,
             background: "white",
             width: "100%",
             padding: "1em",
           }}
+          className={"sticky"}
         >
           <div>
             <span
@@ -94,6 +102,21 @@ export default function Home() {
             </button>{" "}
             order.
           </div>
+          <p
+            style={{
+              lineHeight: 1.15,
+              marginBottom: 0,
+            }}
+          >
+            {`Top ${countriesData.length || 0} countries population estimate:  
+          ${
+            countriesData
+              ? format(".2s")(
+                  countriesData?.reduce((acc, cur) => acc + cur.population, 0)
+                ).replace("G", "B")
+              : 0
+          }`}
+          </p>
         </div>
         <HorizontalBars
           style={{
@@ -106,24 +129,16 @@ export default function Home() {
           yAxisKey={"country"}
           data={countriesData.length ? countriesData : []}
         />
-        <div
-          style={{
-            marginBottom: "24px",
-          }}
-        >
-          {`Data from: `}
-          <a href="https://www.worldometers.info/world-population/population-by-country/">
-            https://www.worldometers.info/world-population/population-by-country/
-          </a>
-        </div>
       </main>
-
-      <footer className={styles.footer}>
-        <div>@2021 Copyright</div>
-        <div>
-          <a href="https://github.com/Skidragon/population-viewer">Git Repo</a>
-        </div>
-      </footer>
+      <button
+        className={styles["scroll-up-btn"]}
+        onClick={() => {
+          window.scrollTo(0, 0);
+        }}
+      >
+        ⬆️
+      </button>
+      <footer className={styles.footer}>@2021 Copyright</footer>
     </div>
   );
 }

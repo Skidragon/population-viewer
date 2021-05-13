@@ -1,5 +1,3 @@
-import { useEffect } from "react";
-
 export const XAxis = ({ xScale, innerHeight, tickValueFormat }) => {
   return xScale.ticks().map((tickValue) => {
     return (

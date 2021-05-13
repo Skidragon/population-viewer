@@ -11,6 +11,22 @@
   align-items: center;
 }
 
+.scroll-up-btn {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  margin: 1rem;
+  font-size: 3rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  filter: saturate(50%);
+  opacity: 0.9;
+}
+.scroll-up-btn:hover {
+  filter: saturate(100%);
+  opacity: 1;
+}
 .footer {
   width: 100%;
   padding: 1rem;
