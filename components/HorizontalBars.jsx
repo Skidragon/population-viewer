@@ -18,10 +18,7 @@ export const HorizontalBars = ({
   const { width: windowWidth } = useWindowSize();
   const svgWidth = windowWidth && !width ? windowWidth - 100 : width || 1000;
   const innerHeight = height - margin.top - margin.bottom;
-  const innerWidth =
-    svgWidth > MAX_WIDTH - margin.left - margin.right
-      ? MAX_WIDTH
-      : svgWidth - margin.left - margin.right;
+  const innerWidth = svgWidth - margin.left - margin.right;
   const siFormat = (n) => format(".2s")(n).replace("G", "B");
   const xAxisTickFormat = (tickValue) => siFormat(tickValue);
   const isWide = useMedia("(min-width: 500px)", true);
@@ -35,7 +32,7 @@ export const HorizontalBars = ({
     .range([0, innerWidth]);
   return (
     <svg
-      width={svgWidth > MAX_WIDTH ? MAX_WIDTH : svgWidth || "100%"}
+      width={svgWidth || "100%"}
       height={height}
       style={{
         ...style,
