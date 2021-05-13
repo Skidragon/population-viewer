@@ -1,3 +1,17 @@
+# Site: [Population Viewer](https://population-viewer.vercel.app/)
+
+## What I learned from this project
+
+    - The basics of Next.js.
+    - How to setup routes and middleware.
+    - How to deploy to Vercel.
+    - How to rate limit, slow down requests, and do internal caching.
+    - How to web scrape with cheerio.
+    - How to work with svgs.
+    - Using d3.js to create a horizontal bar chart.
+    - The terms domain and range.
+    - Updating a favicon.
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
