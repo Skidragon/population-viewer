@@ -32,7 +32,7 @@ export const HorizontalBars = ({
 
   return (
     <svg
-      width={"100%"}
+      width={svgWidth}
       height={height}
       style={{
         ...style,
