@@ -1,70 +1,64 @@
 import React from "react";
-import { scaleBand, scaleLinear, max } from "d3";
-import { useWindowDimensions } from "../hooks/useWindowDimensions";
+import { scaleBand, scaleLinear, max, format } from "d3";
+import { Bars } from "./Bars";
+import { XAxis } from "./XAxis";
+import { YAxis } from "./YAxis";
+import { useWindowSize } from "react-use";
+const margin = { top: 60, right: 20, bottom: 20, left: 20 };
 
-const margin = { top: 20, right: 20, bottom: 20, left: 200 };
 export const HorizontalBars = ({
   data = [],
-  getLabelValue = (record) => {},
   height = 300,
   width,
   xAxisKey = "",
   yAxisKey = "",
   style = {},
 }) => {
-  const { width: windowWidth } = useWindowDimensions();
+  const { width: windowWidth } = useWindowSize();
   const svgWidth = windowWidth && !width ? windowWidth - 100 : width || 1000;
   const innerHeight = height - margin.top - margin.bottom;
   const innerWidth = svgWidth - margin.left - margin.right;
+  const siFormat = (n) => format(".2s")(n).replace("G", "B");
+  const xAxisTickFormat = (tickValue) => siFormat(tickValue);
+
   const yScale = scaleBand()
     .domain(data.map((d) => d[yAxisKey]))
-    .range([0, innerHeight]);
+    .range([0, innerHeight])
+    .paddingInner(0.5);
 
   const xScale = scaleLinear()
     .domain([0, max(data, (d) => d[xAxisKey])])
     .range([0, innerWidth]);
 
-  console.log(xScale.ticks());
   return (
-    <svg width={svgWidth} height={height} style={style}>
+    <svg
+      width={"100%"}
+      height={height}
+      style={{
+        ...style,
+        background: "#F5F3F2",
+      }}
+    >
       <g transform={`translate(${margin.left},${margin.top})`}>
-        {xScale.ticks().map((tickValue) => {
-          return (
-            <g key={tickValue} transform={`translate(${xScale(tickValue)}, 0)`}>
-              <line y2={innerHeight} stroke="red" />
-              <text
-                dy=".71em"
-                y={innerHeight + 3}
-                style={{ textAnchor: "middle" }}
-              >
-                {tickValue}
-              </text>
-            </g>
-          );
-        })}
-        {yScale.domain().map((tickValue) => {
-          return (
-            <text
-              key={tickValue}
-              x={-3}
-              dy=".7"
-              y={yScale(tickValue) + yScale.bandwidth() / 2}
-              style={{
-                textAnchor: "end",
-              }}
-            >
-              {tickValue}
-            </text>
-          );
-        })}
-        {data.map((d) => (
-          <rect
-            key={d[yAxisKey]}
-            y={yScale(d[yAxisKey])}
-            width={xScale(d[xAxisKey])}
-            height={yScale.bandwidth()}
+        <g transform={`translate(0,-25)`}>
+          <YAxis
+            yScale={yScale}
+            tickValueFormat={(tickValue) => `${tickValue}`}
           />
-        ))}
+        </g>
+        <XAxis
+          xScale={xScale}
+          innerHeight={innerHeight}
+          tickValueFormat={(tickValue) => xAxisTickFormat(tickValue)}
+        />
+        <Bars
+          data={data}
+          xScale={xScale}
+          yScale={yScale}
+          yValue={(d) => d.country}
+          xValue={(d) => d.population}
+          tooltipFormat={(d) => xAxisTickFormat(d.population)}
+        />
       </g>
     </svg>
   );
