@@ -8,7 +8,7 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
 export default function Home() {
   const { data = [] } = useSWR("/api/population-by-country", fetcher);
   const [countriesToShow, setCountriesToShow] = useState(10);
-  const [isAscending, setIsAscending] = useState(true);
+  const [isAscending, setIsAscending] = useState(false);
   const formatPopulation = (value) => {
     const toNumber = value.replace(/,/g, "");
     return format(".2s")(toNumber).replace("G", "B");
