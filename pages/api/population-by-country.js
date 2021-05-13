@@ -1,7 +1,8 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 const axios = require("axios");
 const cheerio = require("cheerio");
-
+const RateLimit = require("koa2-ratelimit").RateLimit;
+const NodeCache = require("node-cache");
 const pageURLToScrape =
   "https://www.worldometers.info/world-population/population-by-country/";
 
@@ -31,12 +32,36 @@ const getPopulationByCountry = async () => {
   });
   return collection;
 };
+//Every hour, the cache resets
+const myCache = new NodeCache({ stdTTL: 3600, checkperiod: 3600 });
 
+const limiter = RateLimit.middleware({
+  interval: { hour: 1 }, // 15 minutes = 15*60*1000
+  max: 120, // limit each IP to 100 requests per interval
+});
+function runMiddleware(req, res, fn) {
+  return new Promise((resolve, reject) => {
+    fn(req, res, (result) => {
+      if (result instanceof Error) {
+        return reject(result);
+      }
+
+      return resolve(result);
+    });
+  });
+}
 export default async (req, res) => {
   if (req.method === "GET") {
     try {
-      // const populations = await getPopulationByCountry();
-      return res.status(200).json([]);
+      const cacheKey = "population-by-country";
+      if (myCache.has(cacheKey)) {
+        console.log(myCache.has(cacheKey));
+        return res.status(200).json(myCache.get(cacheKey));
+      } else {
+        const populations = await getPopulationByCountry();
+        myCache.set(cacheKey, populations);
+        return res.status(200).json(populations);
+      }
     } catch (err) {
       console.log(err);
     }
